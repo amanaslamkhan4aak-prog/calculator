@@ -1,0 +1,487 @@
+/* ============================================================
+   CALCULATOR.CSS — Component layout & styles
+   ============================================================ */
+
+/* ── App wrapper ── */
+.app-wrapper {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;       /* don't force vertical centering — let it grow */
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 16px;
+  width: 100%;
+  min-height: 100dvh;
+}
+
+/* ── Backdrop overlay ── */
+.app-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  z-index: 10;
+  backdrop-filter: blur(2px);
+  animation: fadeIn var(--t-base) ease;
+}
+.app-backdrop.visible { display: block; }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HISTORY PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.history-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: 320px;
+  background: var(--bg-history);
+  border-left: 1px solid var(--border-card);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--t-slow);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.3);
+}
+.history-panel.open { transform: translateX(0); }
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border-card);
+  flex-shrink: 0;
+}
+.history-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+.history-actions { display: flex; gap: 8px; }
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.history-list::-webkit-scrollbar { width: 4px; }
+.history-list::-webkit-scrollbar-thumb { background: var(--border-card); border-radius: 4px; }
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 40px 20px;
+  text-align: center;
+}
+.history-empty svg { opacity: 0.3; }
+
+.history-item {
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+  animation: slideInRight 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.history-item:hover {
+  background: var(--bg-btn-hover);
+  border-color: var(--border-operator);
+  transform: translateX(-2px);
+}
+.history-expr {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.history-result {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   CALCULATOR CARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.calculator {
+  width: var(--card-width);
+  background: var(--bg-card);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-card);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: box-shadow var(--t-slow), background var(--t-slow);
+  position: relative;
+  z-index: 1;
+}
+.calculator:hover { box-shadow: var(--shadow-card), var(--shadow-glow); }
+
+/* ── Card header ── */
+.calc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.calc-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.header-controls { display: flex; gap: 6px; }
+
+/* ── Icon buttons (header) ── */
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
+  font-size: 0.85rem;
+}
+.icon-btn:hover {
+  background: var(--bg-btn-hover);
+  color: var(--text-primary);
+  transform: scale(1.08);
+}
+.icon-btn.active {
+  background: var(--bg-operator);
+  border-color: var(--border-operator);
+  color: var(--text-operator);
+}
+
+/* ── Display area ── */
+.display-area {
+  background: rgba(0,0,0,0.15);
+  border: 1px solid var(--border-btn);
+  border-radius: 18px;
+  padding: 16px 18px 14px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+[data-theme="light"] .display-area { background: rgba(0,0,0,0.04); }
+
+.display-expression {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-align: right;
+  min-height: 18px;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity var(--t-fast);
+  letter-spacing: 0.01em;
+}
+
+.display-result {
+  font-size: 2.6rem;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-align: right;
+  line-height: 1.15;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: font-size var(--t-fast);
+  letter-spacing: -0.02em;
+}
+.display-result.small  { font-size: 1.9rem; }
+.display-result.xsmall { font-size: 1.45rem; }
+
+.display-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.memory-indicator {
+  font-size: 0.68rem;
+  color: var(--text-memory);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+.memory-indicator.visible { opacity: 1; }
+
+.copy-btn {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all var(--t-fast);
+  letter-spacing: 0.04em;
+}
+.copy-btn:hover {
+  background: var(--bg-btn);
+  border-color: var(--border-btn);
+  color: var(--text-secondary);
+}
+.copy-btn.copied { color: var(--text-memory); border-color: var(--border-memory); }
+
+/* ── Mode tabs ── */
+.mode-tabs {
+  display: flex;
+  background: var(--bg-btn);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.mode-tab {
+  flex: 1;
+  height: 30px;
+  border-radius: 7px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--t-fast);
+  letter-spacing: 0.03em;
+}
+.mode-tab.active {
+  background: var(--bg-card-solid);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.mode-tab:hover:not(.active) { color: var(--text-primary); }
+
+/* ── Button grids ── */
+.btn-grid {
+  display: grid;
+  gap: var(--gap);
+}
+.btn-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.btn-grid-5 { grid-template-columns: repeat(5, 1fr); }
+
+/* Scientific section — must be display:grid so btn-grid-5 columns work */
+.scientific-section {
+  display: none;
+  gap: var(--gap);
+  grid-template-columns: repeat(5, 1fr); /* 5-col grid for sci buttons */
+}
+.scientific-section.visible { display: grid; }
+
+/* ── Buttons ── */
+.btn {
+  height: var(--btn-height);
+  border-radius: var(--btn-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+  transition: background var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast), border-color var(--t-fast);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-btn);
+  user-select: none;
+  -webkit-user-select: none;
+  letter-spacing: 0.01em;
+}
+.btn:hover {
+  background: var(--bg-btn-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+}
+.btn:active {
+  transform: scale(0.94);
+  background: var(--bg-btn-active);
+  box-shadow: none;
+}
+
+/* Button variants */
+.btn-operator {
+  background: var(--bg-operator);
+  border-color: var(--border-operator);
+  color: var(--text-operator);
+  font-weight: 600;
+}
+.btn-operator:hover { background: var(--bg-operator-hover); }
+
+.btn-clear {
+  background: var(--bg-clear);
+  border-color: var(--border-clear);
+  color: var(--text-clear);
+  font-weight: 600;
+}
+.btn-clear:hover { background: var(--bg-clear-hover); }
+
+.btn-equal {
+  background: var(--bg-equal);
+  border: none;
+  color: var(--text-equal);
+  font-size: 1.3rem;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba(124, 58, 237, 0.4);
+}
+.btn-equal:hover {
+  background: var(--bg-equal-hover);
+  box-shadow: 0 6px 24px rgba(124, 58, 237, 0.55);
+  transform: translateY(-2px);
+}
+.btn-equal:active { transform: scale(0.94); }
+
+.btn-memory {
+  background: var(--bg-memory);
+  border-color: var(--border-memory);
+  color: var(--text-memory);
+  font-size: 0.78rem;
+  font-weight: 600;
+  height: 44px;
+  letter-spacing: 0.04em;
+}
+.btn-memory:hover { background: var(--bg-memory-hover); }
+
+.btn-sci {
+  background: var(--bg-sci);
+  border-color: var(--border-sci);
+  color: var(--text-sci);
+  font-size: 0.82rem;
+  font-weight: 500;
+  height: 50px;
+}
+.btn-sci:hover { background: var(--bg-sci-hover); }
+
+.btn-delete {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+/* Span utilities */
+.col-span-2 { grid-column: span 2; }
+
+/* ── Keyboard hint badge ── */
+.kbd-hint {
+  display: none;
+  position: absolute;
+  bottom: 3px;
+  right: 4px;
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+}
+.btn:hover .kbd-hint { display: block; }
+
+/* ── Ripple ── */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  transform: scale(0);
+  animation: ripple 0.5s linear;
+  pointer-events: none;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   KEYBOARD SHORTCUTS PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.shortcuts-panel {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-card);
+  border-radius: 14px;
+  padding: 14px 16px;
+  width: 300px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-base), transform var(--t-base);
+  z-index: 30;
+}
+.shortcuts-panel.visible {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateX(-50%) translateY(0);
+}
+.shortcuts-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+}
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.shortcut-label { font-size: 0.75rem; color: var(--text-secondary); }
+.shortcut-key {
+  font-size: 0.68rem;
+  background: var(--bg-btn);
+  border: 1px solid var(--border-btn);
+  border-radius: 5px;
+  padding: 2px 6px;
+  color: var(--text-primary);
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   RESPONSIVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (max-width: 400px) {
+  :root {
+    --card-width: calc(100vw - 24px);
+    --btn-height: 56px;
+    --gap: 8px;
+    --card-radius: 22px;
+    --btn-radius: 12px;
+  }
+  .display-result { font-size: 2.2rem; }
+  .history-panel { width: 85vw; }
+}
+@media (max-width: 360px) {
+  :root { --btn-height: 50px; }
+  .btn { font-size: 0.9rem; }
+}
