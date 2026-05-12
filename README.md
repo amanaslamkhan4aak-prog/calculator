@@ -38,6 +38,7 @@
 ## ✨ Features
 
 ### Core Calculator
+
 - ✅ Basic arithmetic: `+`, `−`, `×`, `÷`
 - ✅ **Two-line display** — expression line (top) + result line (bottom)
 - ✅ Input validation — blocks double operators, double decimals
@@ -46,6 +47,7 @@
 - ✅ Shake + glow animation on errors
 
 ### Scientific Mode
+
 - ✅ Toggle between **Standard** and **Scientific** modes
 - ✅ Trigonometry: `sin`, `cos`, `tan`, `asin`, `acos`, `atan` (degrees)
 - ✅ Logarithms: `log` (base 10), `ln` (natural)
@@ -55,6 +57,7 @@
 - ✅ Parentheses: `( )`
 
 ### Memory Functions
+
 - ✅ `MC` — Memory Clear
 - ✅ `MR` — Memory Recall
 - ✅ `M+` — Memory Add
@@ -62,6 +65,7 @@
 - ✅ Visual `M` indicator on display when memory is active
 
 ### History Panel
+
 - ✅ Slide-in history panel showing all past calculations
 - ✅ Click any history item to load its result
 - ✅ Persisted in **localStorage** (survives page refresh)
@@ -70,6 +74,7 @@
 - ✅ Clear all history button
 
 ### UI/UX
+
 - ✅ **Dark / Light theme** toggle (persisted in localStorage)
 - ✅ **Ripple animation** on every button press
 - ✅ Responsive layout — works on mobile (down to 360px)
@@ -80,6 +85,7 @@
 - ✅ Smooth transitions and micro-animations throughout
 
 ### Keyboard Support
+
 - ✅ Full keyboard input (digits, operators, Enter, Backspace, Escape)
 - ✅ `^` for power, `( )` for parentheses
 - ✅ `Ctrl+C` to copy result
@@ -115,6 +121,7 @@ calculator-app/
 ## 🏗️ Architecture & Design Decisions
 
 ### 1. ES Module Architecture
+
 ```html
 <script type="module" src="src/js/app.js"></script>
 ```
@@ -135,6 +142,7 @@ Each file is a proper ES module with `import`/`export`. This gives us:
 | **Wiring** | `app.js` | Imports all modules, connects them. |
 
 ### 3. Event Delegation
+
 Instead of `onclick="appendValue('7')"` on every button, **one listener** handles all button clicks:
 ```javascript
 document.getElementById('btn-grid').addEventListener('click', e => {
@@ -146,6 +154,7 @@ document.getElementById('btn-grid').addEventListener('click', e => {
 Benefits: fewer event listeners, dynamic buttons work automatically.
 
 ### 4. Data Attributes Drive Behavior
+
 All button configuration lives in HTML as `data-*` attributes:
 ```html
 <button class="btn btn-operator"
@@ -157,6 +166,7 @@ All button configuration lives in HTML as `data-*` attributes:
 The JS just reads `btn.dataset.action` — no giant switch/case in HTML.
 
 ### 5. Central Dispatch Function
+
 ```javascript
 function dispatch(action, ...args) {
   switch (action) {
@@ -175,6 +185,7 @@ Single entry point for all state changes → easy to debug, easy to extend.
 ## 📦 Module Breakdown
 
 ### `parser.js` — Safe Expression Parser
+
 A hand-written **recursive-descent parser** implementing the grammar:
 
 ```
@@ -194,6 +205,7 @@ Supports:
 - Constants: `π`, `e`
 
 ### `calculator.js` — State Engine
+
 Maintains state as a plain object:
 ```javascript
 {
@@ -210,6 +222,7 @@ Maintains state as a plain object:
 Every method returns a **new state snapshot** — no side effects.
 
 ### `history.js` — Persistence Layer
+
 ```javascript
 export function addHistoryEntry(expression, result) { ... }
 export function loadHistory() { ... }
@@ -219,6 +232,7 @@ export function formatRelativeTime(timestamp) { ... }
 Pure functions. No DOM. No state. Easily testable.
 
 ### `ui.js` — Presentation Layer
+
 Handles **all** DOM interaction. Receives state objects from calculator engine:
 ```javascript
 export function updateDisplay(state) {
@@ -229,6 +243,7 @@ export function updateDisplay(state) {
 ```
 
 ### `keyboard.js` — Input Module
+
 Maps `KeyboardEvent.key` strings to action names. Completely decoupled:
 ```javascript
 export function initKeyboard(actions) {
@@ -274,11 +289,13 @@ Built entirely with **CSS Custom Properties** (design tokens):
 **Light theme** overrides every token via `[data-theme="light"]` selector — zero duplication.
 
 ### Typography
+
 - **Font**: [Inter](https://fonts.google.com/specimen/Inter) via Google Fonts
 - Result display: `2.6rem`, `font-weight: 300` (elegant, spacious)
 - Auto-scaling: switches to `.small` or `.xsmall` class for long numbers
 
 ### Animations
+
 | Animation | Trigger | Effect |
 |---|---|---|
 | `ripple` | Button click | Expanding circle from click point |
@@ -294,6 +311,7 @@ Built entirely with **CSS Custom Properties** (design tokens):
 ## 🔐 Security
 
 ### Before: `eval()` — Critical Vulnerability
+
 ```javascript
 // ❌ OLD: Executes ANY JavaScript code
 display.value = eval(display.value);
@@ -302,6 +320,7 @@ display.value = eval(display.value);
 ```
 
 ### After: Custom Parser — Completely Safe
+
 ```javascript
 // ✅ NEW: Only evaluates mathematical expressions
 // Input is tokenized → parsed → evaluated mathematically
@@ -362,16 +381,19 @@ Every interactive element has proper ARIA attributes:
 This is a **pure static app** — no build step, no npm install, no server required.
 
 ### Option 1: Direct open (limited — modules may be blocked)
+
 Double-click `index.html` in File Explorer.
 
 > **Note:** ES Modules require a server due to browser CORS policy on `file://` protocol.
 
 ### Option 2: VS Code Live Server (recommended)
+
 1. Install the **Live Server** extension in VS Code
 2. Right-click `index.html` → **Open with Live Server**
 3. App opens at `http://127.0.0.1:5500`
 
 ### Option 3: Python HTTP server
+
 ```bash
 cd "calculator aap"
 python -m http.server 5500
@@ -379,6 +401,7 @@ python -m http.server 5500
 ```
 
 ### Option 4: Node.js
+
 ```bash
 npx serve .
 # or
@@ -418,21 +441,27 @@ npx http-server .
 ## 🎤 Interview Talking Points
 
 ### "Why no framework?"
+
 > "This project deliberately uses **Vanilla JS with ES Modules** to demonstrate that clean architecture isn't about tools — it's about discipline. The same patterns (separation of concerns, single responsibility, state management) apply whether you're using React or plain JS. Using no framework also meant zero build tooling, instant load, and full control over every byte."
 
 ### "How did you handle security?"
+
 > "The original app used `eval()`, which is a critical security hole — it executes any JavaScript string. I replaced it with a hand-written **recursive-descent parser** that only understands mathematical grammar. Even if someone inputs `alert(1)`, the parser throws a parse error because `alert` isn't a valid token in our grammar. No code ever gets executed."
 
 ### "Explain your architecture."
+
 > "I split the app into 6 JavaScript modules by **layer of responsibility**: parser (math), calculator (state/logic), history (persistence), ui (DOM), keyboard (input), and app (wiring). Each layer only knows about its own concern — for example, `calculator.js` has zero DOM access and `ui.js` has zero math logic. This makes each piece independently testable and replaceable."
 
 ### "How does state management work?"
+
 > "The `CalculatorEngine` class maintains a state object with fields like `expression`, `currentDisplay`, `afterEquals`, and `memory`. Every method — `appendDigit`, `appendOperator`, `calculate` — returns a fresh state snapshot. The UI module receives this snapshot and updates the DOM. This is a simplified version of the same unidirectional data flow used by Redux or Vuex."
 
 ### "How did you handle the two-line display?"
+
 > "The display has two layers: an `expression` line (small, shows what you're building — `7 × 8`) and a `result` line (large, shows current number). I maintain two parallel strings: an internal expression using `*`, `/` for the parser, and a display expression using `×`, `÷` for readability. They're always in sync but serve different purposes."
 
 ### "What design patterns did you use?"
+
 > - **Module Pattern** — ES modules for encapsulation
 > - **Facade Pattern** — `app.js` is the facade coordinating all modules
 > - **Observer-like** — state changes flow one-way: engine → ui
@@ -440,9 +469,11 @@ npx http-server .
 > - **Event Delegation** — one listener handles all button clicks via `data-action`
 
 ### "How is the CSS organized?"
+
 > "Three files with a clear hierarchy: `base.css` defines the entire design token system as CSS custom properties (colors, spacing, transitions, typography). `calculator.css` uses those tokens for all component styles. `animations.css` contains all keyframes. Light theme works by overriding the token values in `[data-theme='light']` — zero component CSS needs to change."
 
 ### "What would you add next?"
+
 > "Unit tests for `parser.js` and `calculator.js` using Jest (they're pure functions, perfect for testing). A service worker for offline support. A unit converter tab. Possibly migrate to a build tool like Vite to enable TypeScript types for the state objects."
 
 ---
@@ -454,5 +485,6 @@ MIT — free to use, modify, and distribute.
 ---
 
 *Built with ❤️ — from a 282-line single file to a professional, modular app.*
-#   c a l c u l a t o r  
+#   c a l c u l a t o r 
+ 
  
